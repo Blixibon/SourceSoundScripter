@@ -1,0 +1,137 @@
+﻿<Window x:Class="SourceSoundScripter.SoundEdit"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SourceSoundScripter"
+        mc:Ignorable="d"
+        Title="Sound Editor" Height="350" Width="600" MinWidth="400" MinHeight="250"
+		Closing="Window_Closing">
+	<Window.Resources>
+		<Style x:Key="KeyvalueBox" TargetType="TextBox">
+			<Setter Property="Background" Value="White"/>
+			<Style.Triggers>
+				<DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Text.Length}" Value="0">
+					<Setter Property="Background" Value="Transparent"/>
+				</DataTrigger>
+			</Style.Triggers>
+		</Style>
+	</Window.Resources>
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="10"/>
+			<ColumnDefinition Width="60"/>
+			<ColumnDefinition Width="*"/>
+			<ColumnDefinition Width="10"/>
+			<ColumnDefinition Width="60"/>
+			<ColumnDefinition Width="100"/>
+			<ColumnDefinition Width="10"/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="10"/>
+			<!--Tip Text-->
+			<RowDefinition Height="auto"/>
+			<!--Name-->
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="10"/>
+			<!--Keyvalue List-->
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="auto"/>
+			<!--Footer-->
+			<RowDefinition Height="auto"/>
+			<!--<RowDefinition Height="32"/>-->
+		</Grid.RowDefinitions>
+
+		<!--Tip Text-->
+		<TextBlock x:Name="TipTxt" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="5" Margin="2,0,2,8"
+				Text="\{0} = File Name, {1} = Folder" FontSize="12" VerticalAlignment="Center"
+				Visibility="Collapsed"/>
+
+		<!--Name-->
+		<TextBlock x:Name="EntryName_Txt" Grid.Column="1" Grid.Row="2" Margin="2,2,2,2"
+				Text="Name:" FontSize="14" VerticalAlignment="Center"/>
+		<TextBox x:Name="EntryName" Grid.Column="2" Grid.Row="2"
+ 				Grid.ColumnSpan="4" VerticalAlignment="Center"
+ 				FontSize="14"
+ 				Margin="2,2,2,2" TextChanged="EntryName_TextChanged"/>
+
+		<!--Keyvalues-->
+		<TextBlock x:Name="Channel_Txt" Grid.Column="4" Grid.Row="4" Margin="2,2,2,2"
+				Text="Channel:" FontSize="12" VerticalAlignment="Center"/>
+		<TextBlock x:Name="Channel_Placeholder" Grid.Column="5" Grid.Row="4" Margin="4,2,2,2"
+				Text="Default" FontSize="12" VerticalAlignment="Center"
+				Foreground="Gray" FontStyle="Italic"/>
+		<TextBox x:Name="Channel" Grid.Column="5" Grid.Row="4" Style="{StaticResource KeyvalueBox}"
+ 				Grid.ColumnSpan="1"
+ 				FontSize="12"
+ 				Margin="2,2,2,2"/>
+
+		<TextBlock x:Name="Volume_Txt" Grid.Column="4" Grid.Row="5" Margin="2,2,2,2"
+				Text="Volume:" FontSize="12" VerticalAlignment="Center"/>
+		<TextBlock x:Name="Volume_Placeholder" Grid.Column="5" Grid.Row="5" Margin="4,2,2,2"
+				Text="Default" FontSize="12" VerticalAlignment="Center"
+				Foreground="Gray" FontStyle="Italic"/>
+		<TextBox x:Name="Volume" Grid.Column="5" Grid.Row="5" Style="{StaticResource KeyvalueBox}"
+ 				Grid.ColumnSpan="1"
+ 				FontSize="12"
+ 				Margin="2,2,2,2"/>
+
+		<TextBlock x:Name="Pitch_Txt" Grid.Column="4" Grid.Row="6" Margin="2,2,2,2"
+				Text="Pitch:" FontSize="12" VerticalAlignment="Center"/>
+		<TextBlock x:Name="Pitch_Placeholder" Grid.Column="5" Grid.Row="6" Margin="4,2,2,2"
+				Text="Default" FontSize="12" VerticalAlignment="Center"
+				Foreground="Gray" FontStyle="Italic"/>
+		<TextBox x:Name="Pitch" Grid.Column="5" Grid.Row="6" Style="{StaticResource KeyvalueBox}"
+ 				Grid.ColumnSpan="1"
+ 				FontSize="12"
+ 				Margin="2,2,2,2"/>
+
+		<TextBlock x:Name="SndLvl_Txt" Grid.Column="4" Grid.Row="7" Margin="2,2,2,2"
+				Text="Snd Lvl:" FontSize="12" VerticalAlignment="Center"/>
+		<TextBlock x:Name="SndLvl_Placeholder" Grid.Column="5" Grid.Row="7" Margin="4,2,2,2"
+				Text="Default" FontSize="12" VerticalAlignment="Center"
+				Foreground="Gray" FontStyle="Italic"/>
+		<TextBox x:Name="SndLvl" Grid.Column="5" Grid.Row="7" Style="{StaticResource KeyvalueBox}"
+ 				Grid.ColumnSpan="1"
+ 				FontSize="12"
+ 				Margin="2,2,2,2"/>
+
+		<TextBlock x:Name="SndChars_Txt" Grid.Column="4" Grid.Row="8" Margin="2,2,2,2"
+				Text="Snd Chars:" FontSize="12" VerticalAlignment="Center"/>
+		<TextBlock x:Name="SndChars_Placeholder" Grid.Column="5" Grid.Row="8" Margin="4,2,2,2"
+				Text="Default" FontSize="12" VerticalAlignment="Center"
+				Foreground="Gray" FontStyle="Italic"/>
+		<TextBox x:Name="SndChars" Grid.Column="5" Grid.Row="8" Style="{StaticResource KeyvalueBox}"
+ 				Grid.ColumnSpan="1"
+ 				FontSize="12"
+ 				Margin="2,2,2,2"/>
+
+		<!--Waves-->
+		<ListView x:Name="WaveList" ItemsSource="{Binding WaveListData}" Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2" Grid.RowSpan="6"
+				 FontSize="12">
+		</ListView>
+		<Button x:Name="WaveAdd" Grid.Row="10" Grid.Column="2"
+				HorizontalAlignment="Right" Width="60" Margin="5,5,5,5"
+				FontSize="12" Content="Add"
+				Click="WaveAdd_Click"/>
+		<Button x:Name="WaveRemove" Grid.Row="10" Grid.Column="2"
+				HorizontalAlignment="Right" Width="60" Margin="5,5,70,5"
+				FontSize="12" Content="Delete"
+				Click="WaveRemove_Click"/>
+
+		<!--Footer-->
+		<Button x:Name="SaveButton" Grid.Row="11" Grid.Column="5"
+				HorizontalAlignment="Stretch"
+				FontSize="14" Content="Save Entry"
+				Margin="5,10,5,10" Click="SaveButton_Click" IsDefault="True"/>
+		<Button x:Name="CancelButton" Grid.Row="11" Grid.Column="1"
+				HorizontalAlignment="Stretch"
+				FontSize="14" Content="Cancel"
+				Margin="5,10,5,10" Click="CancelButton_Click"/>
+	</Grid>
+</Window>
