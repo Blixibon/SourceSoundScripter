@@ -75,20 +75,29 @@ namespace SourceSoundScripter
 			if (String.IsNullOrEmpty(clipboardText))
 				return;
 
-			if (DialogueList.SelectedIndex != -1 && clipboardText.Contains('\n'))
+			if (clipboardText.Contains('\n'))
 			{
 				// Split newlines into different rows
 				string[] rows = clipboardText.Replace("\r", "").Split('\n');
 				for (int i = 0; i < rows.Length; i++)
 				{
-					int listIdx = DialogueList.SelectedIndex + i;
-					if (listIdx == -1)
-					{
-						// No rows remaining
+					if (DialogueList.SelectedCells.Count <= i)
 						break;
-					}
 
-					DialogueLines[listIdx].Caption = rows[i];
+					DialogueLine? line = DialogueList.SelectedCells[i].Item as DialogueLine;
+					if (line != null)
+					{
+						if (DialogueList.SelectedCells[i].Column.Header.ToString() == "Prefix")
+						{
+							// Prefix
+							line.Prefix = rows[i];
+						}
+						else
+						{
+							// Caption
+							line.Caption = rows[i];
+						}
+					}
 				}
 			}
 			else
