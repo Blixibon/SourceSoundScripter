@@ -6,6 +6,16 @@
         xmlns:local="clr-namespace:SourceSoundScripter"
         mc:Ignorable="d"
         Title="Source Sound Scripter" Height="600" Width="750" MinWidth="600" MinHeight="550">
+	<Window.Resources>
+		<ContextMenu x:Key="SoundscriptListContext">
+			<MenuItem Header="Add Sounds..." Click="SoundscriptAddSounds_Click"/>
+			<MenuItem Header="Add Entry" Click="SoundscriptAdd_Click"/>
+		</ContextMenu>
+		<ContextMenu x:Key="SoundscriptListEntryContext">
+			<MenuItem Header="Edit" Click="SoundscriptEdit_Click"/>
+			<MenuItem Header="Delete" Click="SoundscriptDelete_Click"/>
+		</ContextMenu>
+	</Window.Resources>
 	<Grid AllowDrop="True" DragEnter="Grid_DragEnter" Drop="Grid_Drop">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="20"/>
@@ -41,7 +51,8 @@
 			<!--<RowDefinition Height="32"/>-->
 		</Grid.RowDefinitions>
 
-		<ListView x:Name="SoundscriptList" ItemsSource="{Binding}" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="5" Grid.RowSpan="6">
+		<ListView x:Name="SoundscriptList" ItemsSource="{Binding}" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="5" Grid.RowSpan="6"
+				MouseRightButtonDown="SoundscriptList_RightClick">
 			<ListView.View>
 				<GridView>
 					<GridViewColumn DisplayMemberBinding="{Binding Name}" Header="Name" Width="250" />
@@ -55,6 +66,8 @@
 					<!-- Add a bottom border (the line) to each item -->
 					<Setter Property="BorderThickness" Value="0,0,0,1" />
 					<Setter Property="BorderBrush" Value="LightGray" />
+					<EventSetter Event="PreviewMouseRightButtonDown" Handler="SoundscriptList_ItemRightClick" />
+					<EventSetter Event="PreviewMouseDoubleClick" Handler="SoundscriptEdit_Click" />
 				</Style>
 			</ListView.ItemContainerStyle>
 		</ListView>
@@ -193,17 +206,17 @@
 				HorizontalAlignment="Stretch"
 				FontSize="16" Content="Save"
 				Margin="5,10,5,10" Click="SaveButton_Click"
-				ToolTip="Saves the soundscript file."/>
+				ToolTip="Saves the soundscripts to a file."/>
 		<Button x:Name="LoadButton" Grid.Row="15" Grid.Column="5"
 				HorizontalAlignment="Stretch"
 				FontSize="16" Content="Load"
 				Margin="5,10,5,10" Click="LoadButton_Click"
-				ToolTip="Loads the soundscript file."/>
+				ToolTip="Loads the soundscripts from a file."/>
 
 		<Button x:Name="DialogueEditorButton" Grid.Row="15" Grid.Column="1" Grid.ColumnSpan="2"
 				HorizontalAlignment="Stretch"
 				FontSize="16" Content="Dialogue Editor"
 				Margin="5,10,5,10" Click="DialogueEditorButton_Click"
-				ToolTip="Loads the soundscript file."/>
+				ToolTip="Opens the Dialogue Editor for voice line operations."/>
 	</Grid>
 </Window>

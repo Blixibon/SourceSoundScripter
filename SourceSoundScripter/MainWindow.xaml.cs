@@ -62,6 +62,38 @@ namespace SourceSoundScripter
 			}
 		}
 
+		//============================================================================
+		// List Events
+		//============================================================================
+		private void SoundscriptList_RightClick(object sender, RoutedEventArgs e)
+		{
+			//if (SoundscriptList.SelectedItem != null)
+			{
+				ContextMenu menu = (ContextMenu)TryFindResource("SoundscriptListContext");
+				if (menu != null)
+				{
+					menu.IsOpen = true;
+				}
+			}
+		}
+		private void SoundscriptList_ItemRightClick(object sender, RoutedEventArgs e)
+		{
+			if (sender is ListViewItem row && !SoundscriptList.SelectedItems.Contains(row.DataContext))
+			{
+				SoundscriptList.SelectedItems.Clear();
+				SoundscriptList.SelectedItem = row.DataContext;
+			}
+
+			if (SoundscriptList.SelectedItem != null)
+			{
+				ContextMenu menu = (ContextMenu)TryFindResource("SoundscriptListEntryContext");
+				if (menu != null)
+				{
+					menu.IsOpen = true;
+				}
+			}
+		}
+
 
 		//============================================================================
 		// List Buttons
