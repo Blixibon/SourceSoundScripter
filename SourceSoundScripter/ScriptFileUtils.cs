@@ -173,7 +173,7 @@ namespace SourceSoundScripter
 
 		//================================================
 
-		public static void LoadCaptionFile(string path, ref ObservableCollection<DialogueLine> dialogueLines, ref string? prefix)
+		public static void LoadCaptionFile(string path, ref ObservableCollection<DialogueLine> dialogueLines)
 		{
 			FileStream stream = File.OpenRead(path);
 
@@ -200,20 +200,23 @@ namespace SourceSoundScripter
 						if (valueStr == null)
 							continue;
 
-						if (prefix == null)
-							prefix = valueStr;
-						else if (prefix != String.Empty)
+						// Find first instance of > that isn't succeeded by a <
+						int cmdEnd = valueStr.IndexOf('>');
+						if (cmdEnd >= 0)
 						{
-							// Compare until divergence is found
-							int i = 0;
-							while (i < prefix.Length && i < valueStr.Length && prefix[i] == valueStr[i])
-								i++;
+							while (cmdEnd < valueStr.Length && valueStr[cmdEnd+1] == '<')
+								cmdEnd = valueStr.IndexOf('>', cmdEnd+1);
 
-							prefix = prefix.Substring(0, i);
+							line.Prefix = valueStr.Substring(0, cmdEnd+1);
+							line.Caption = valueStr.Substring(cmdEnd+1);
+						}
+						else
+						{
+							line.Caption = valueStr;
 						}
 
 						// Strip the commands
-						line.Caption = Regex.Replace(valueStr, @"\<.*?\>", string.Empty);
+						//line.Caption = Regex.Replace(valueStr, @"\<.*?\>", string.Empty);
 					}
 					break;
 				}

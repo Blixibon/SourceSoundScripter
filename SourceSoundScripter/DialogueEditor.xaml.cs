@@ -1,19 +1,20 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows;
-using System.Windows.Input;
 using System.IO;
-using Microsoft.Win32;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace SourceSoundScripter
 {
 	public class DialogueLine : INotifyPropertyChanged
 	{
-		public DialogueLine(string name = "", string wave = "", string caption = "")
+		public DialogueLine(string name = "", string wave = "", string caption = "", string prefix = "")
 		{
-			Name = name; Wave = wave; Caption = caption; HasPhonemes = false;
+			Name = name; Wave = wave; Caption = caption; HasPhonemes = false; Prefix = prefix;
 		}
 
 		public string Name { get; set; }
@@ -24,6 +25,9 @@ namespace SourceSoundScripter
 
 		private bool _hasphonemes;
 		public bool HasPhonemes { get { return _hasphonemes; } set { _hasphonemes = value; OnPropertyChanged("HasPhonemes"); } }
+
+		private string _prefix;
+		public string Prefix { get { return _prefix; } set { _prefix = value; OnPropertyChanged("Prefix"); } }
 
 		public event PropertyChangedEventHandler PropertyChanged;
 		protected virtual void OnPropertyChanged(string propertyName)
@@ -68,24 +72,45 @@ namespace SourceSoundScripter
 		private void DialogueList_Paste(object sender, ExecutedRoutedEventArgs e)
 		{
 			string clipboardText = Clipboard.GetText();
-			if (String.IsNullOrEmpty(clipboardText) || !clipboardText.Contains('\n'))
+			if (String.IsNullOrEmpty(clipboardText))
 				return;
 
-			if (DialogueList.SelectedIndex == -1)
-				return;
-
-			// Split newlines into different rows
-			string[] rows = clipboardText.Replace("\r", "").Split('\n');
-			for (int i = 0; i < rows.Length; i++)
+			if (DialogueList.SelectedIndex != -1 && clipboardText.Contains('\n'))
 			{
-				int listIdx = DialogueList.SelectedIndex + i;
-				if (listIdx == -1)
+				// Split newlines into different rows
+				string[] rows = clipboardText.Replace("\r", "").Split('\n');
+				for (int i = 0; i < rows.Length; i++)
 				{
-					// No rows remaining
-					break;
-				}
+					int listIdx = DialogueList.SelectedIndex + i;
+					if (listIdx == -1)
+					{
+						// No rows remaining
+						break;
+					}
 
-				DialogueLines[listIdx].Caption = rows[i];
+					DialogueLines[listIdx].Caption = rows[i];
+				}
+			}
+			else
+			{
+				string rowText = clipboardText.Replace("\r", "").Replace("\n", "");
+				foreach (var cell in DialogueList.SelectedCells)
+				{
+					DialogueLine? line = cell.Item as DialogueLine;
+					if (line != null)
+					{
+						if (cell.Column.Header.ToString() == "Prefix")
+						{
+							// Prefix
+							line.Prefix = rowText;
+						}
+						else
+						{
+							// Caption
+							line.Caption = rowText;
+						}
+					}
+				}
 			}
 
 			e.Handled = true;
@@ -150,14 +175,8 @@ namespace SourceSoundScripter
 
 			if (openFileDialog.ShowDialog() == true)
 			{
-				string? prefix = null;
-				ScriptFileUtils.LoadCaptionFile(openFileDialog.FileName, ref DialogueLines, ref prefix);
+				ScriptFileUtils.LoadCaptionFile(openFileDialog.FileName, ref DialogueLines);
 				ScriptFileUtils.UpdateModDirectory(openFileDialog.FileName);
-
-				if (prefix != null)
-				{
-					CaptionPrefix.Text = prefix;
-				}
 			}
 		}
 
@@ -170,7 +189,7 @@ namespace SourceSoundScripter
 				if (line.Caption == "")
 					continue;
 
-				captions += String.Format("	\"{0}\"		\"{1}{2}\"\n", line.Name, CaptionPrefix.Text, line.Caption);
+				captions += String.Format("	\"{0}\"		\"{1}{2}\"\n", line.Name, line.Prefix, line.Caption);
 			}
 
 			Clipboard.SetText(captions);

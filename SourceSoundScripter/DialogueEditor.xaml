@@ -41,7 +41,8 @@
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="Name" Width="200" Binding="{Binding Name}" IsReadOnly="True"/>
 				<DataGridCheckBoxColumn x:Name="DialogueList_HasPhonemes" Visibility="Collapsed" Header="Phonemes" Width="80" Binding="{Binding HasPhonemes}" IsReadOnly="True"/>
-				<DataGridTextColumn Header="Line" Width="500" Binding="{Binding Caption}"/>
+				<DataGridTextColumn Header="Line" Width="375" Binding="{Binding Caption}"/>
+				<DataGridTextColumn Header="Prefix" Width="150" Binding="{Binding Prefix}"/>
 			</DataGrid.Columns>
 			<DataGrid.CommandBindings>
 				<CommandBinding Command="Paste" Executed="DialogueList_Paste" />
@@ -67,11 +68,11 @@
 				FontSize="14" Content="Copy Captions"
 				Margin="5,5,5,5" Click="CaptionCopy_Click"
 				ToolTip="Loads captions for these sounds from a captions .txt."/>
-		<TextBlock x:Name="CaptionPrefix_Txt" Grid.Column="4" Grid.Row="4" Margin="2,2,2,2"
+		<!--<TextBlock x:Name="CaptionPrefix_Txt" Grid.Column="4" Grid.Row="4" Margin="2,2,2,2"
 				Text="Caption Prefix:" FontSize="12" VerticalAlignment="Center"/>
 		<TextBox x:Name="CaptionPrefix" Grid.Column="4" Grid.Row="5"
  				Grid.ColumnSpan="2"
  				FontSize="12"
- 				Margin="2,2,2,2"/>
+ 				Margin="2,2,2,2"/>-->
 	</Grid>
 </Window>
