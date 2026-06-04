@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.IO;
+using System.Reflection;
 using Microsoft.Win32;
 
 
@@ -14,12 +15,16 @@ namespace SourceSoundScripter
     {
 		public ObservableCollection<SoundEntry> SoundEntries = new ObservableCollection<SoundEntry>();
 
+		public static string ProgramVersion = "v1.1";
+
 		public MainWindow()
         {
             InitializeComponent();
 
 			SoundscriptList.ItemsSource = SoundEntries;
 			SoundscriptList.DataContext = SoundEntries;
+
+			Title += " - " + ProgramVersion;
 		}
 
 		//============================================================================
