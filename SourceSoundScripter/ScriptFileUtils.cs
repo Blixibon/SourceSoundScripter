@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows;
 using ValveKeyValue;
 
 namespace SourceSoundScripter
@@ -20,7 +21,31 @@ namespace SourceSoundScripter
 			MemoryStream stream = new MemoryStream(fullScriptBytes);
 
 			KVSerializer kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);
-			KVObject data = kv.Deserialize(stream);
+			KVObject? data = null;
+
+			try
+			{
+				data = kv.Deserialize(stream);
+			}
+			catch (Exception e)
+			{
+				// Catch exceptions as nonfatal load failures and try to give hints for common cases
+				string msg = "";
+				string fileName = Path.GetFileName(path);
+
+				if (fileName.StartsWith("closecaption_"))
+				{
+					msg = String.Format("{0} is a caption file, not a soundscript file.\n\nTo load a caption file, use the Dialogue Editor.", fileName);
+				}
+				else
+				{
+					msg = String.Format("Failed to load {0}:\n\n\"{1}\"", fileName, e.Message);
+				}
+
+				MessageBoxResult result = MessageBox.Show(msg, "Cannot Load", MessageBoxButton.OK, MessageBoxImage.Error);
+				stream.Close();
+				return;
+			}
 
 			foreach (KVObject sound in data.Children)
 			{
@@ -175,7 +200,58 @@ namespace SourceSoundScripter
 
 		public static void LoadCaptionFile(string path, ref ObservableCollection<DialogueLine> dialogueLines)
 		{
-			FileStream stream = File.OpenRead(path);
+			Stream stream = File.OpenRead(path);
+
+			bool usingCorrectedChars = false;
+
+			// HACKHACK (and it's a bad one!)
+			// ValveKeyValue, or at least this version of it, has issues with [] or # in value contents.
+			// So make sure the file doesn't have any first
+			StreamReader reader = new StreamReader(stream);
+			char fileChar = '\0';
+			int intChar = 0;
+			while ((intChar = reader.Read()) != -1)
+			{
+				fileChar = (char)intChar;
+				switch (fileChar)
+				{
+					case '#':
+					case '[':
+					case ']':
+						usingCorrectedChars = true;
+						break;
+				}
+			}
+
+			stream.Position = 0;
+
+			if (usingCorrectedChars)
+			{
+				// We need to temporarily correct these characters
+				// Create a new string and reassign the stream to it
+				StringBuilder correctedFileContent = new StringBuilder();
+				while ((intChar = reader.Read()) != -1)
+				{
+					fileChar = (char)intChar;
+					switch (fileChar)
+					{
+						case '#':
+							fileChar = '\a';
+							break;
+						case '[':
+							fileChar = '\uFFFE';
+							break;
+						case ']':
+							fileChar = '\uFFFF';
+							break;
+					}
+
+					correctedFileContent.Append(fileChar);
+				}
+
+				stream.Close();
+				stream = new MemoryStream(Encoding.Unicode.GetBytes(correctedFileContent.ToString()));
+			}
 
 			var options = new KVSerializerOptions
 			{
@@ -183,7 +259,24 @@ namespace SourceSoundScripter
 			};
 
 			KVSerializer kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);
-			KVObject data = kv.Deserialize(stream, options);
+			KVObject? data = null;
+
+			try
+			{
+				data = kv.Deserialize(stream, options);
+			}
+			catch (Exception e)
+			{
+				// Catch exceptions as nonfatal load failures and try to give hints for common cases
+				string msg = String.Format("Failed to load {0}:\n\n\"{1}\"", Path.GetFileName(path), e.Message);
+
+				if (e.Message == "Found end of file while trying to read token.")
+					msg += "\n\nCheck for stray double quotes. (e.g. \"alert1\"\t\"\"Alert!\")";
+
+				MessageBoxResult result = MessageBox.Show(msg, "Cannot Load", MessageBoxButton.OK, MessageBoxImage.Error);
+				stream.Close();
+				return;
+			}
 
 			foreach (KVObject subkey in data.Children)
 			{
@@ -213,6 +306,11 @@ namespace SourceSoundScripter
 						else
 						{
 							line.Caption = valueStr;
+						}
+
+						if (usingCorrectedChars)
+						{
+							line.Caption = line.Caption.Replace('\a', '#').Replace('\uFFFE', '[').Replace('\uFFFF', ']');
 						}
 
 						// Strip the commands
